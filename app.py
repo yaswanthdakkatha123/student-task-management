@@ -32,7 +32,8 @@ def create_table():
 
     conn.commit()
     conn.close()
-
+    
+create_table()    
 
 @app.route("/")
 def home():
