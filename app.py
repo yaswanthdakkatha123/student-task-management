@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, session
+from flask import Flask, request, jsonify, render_template, session, redirect
 import sqlite3
 
 app = Flask(__name__)
@@ -127,7 +127,10 @@ def login():
     return jsonify({
         "error": "Invalid email or password"
     }), 401
-    
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/login")  
 @app.route("/")
 def home():
     return render_template("index.html")
