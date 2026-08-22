@@ -41,7 +41,47 @@ def create_table():
     conn.commit()
     conn.close()
     
-create_table()    
+create_table()
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+
+    if request.method == "GET":
+        return render_template("register.html")
+
+    data = request.get_json()
+
+    username = data.get("username")
+    email = data.get("email")
+    password = data.get("password")
+
+    if not username or not email or not password:
+        return jsonify({
+            "error": "All fields are required"
+        }), 400
+
+    conn = get_db_connection()
+
+    try:
+        conn.execute(
+            "INSERT INTO users (username, email, password) VALUES (?, ?, ?)",
+            (username, email, password)
+        )
+
+        conn.commit()
+
+    except sqlite3.IntegrityError:
+        conn.close()
+
+        return jsonify({
+            "error": "Email already registered"
+        }), 400
+
+    conn.close()
+
+    return jsonify({
+        "message": "Registration successful"
+    }), 200
 
 @app.route("/")
 def home():
