@@ -197,10 +197,16 @@ def add_task():
 @app.route("/tasks")
 def get_tasks():
 
+    if "user_id" not in session:
+        return jsonify({
+            "error": "Please login first"
+        }), 401
+
     conn = get_db_connection()
 
     tasks = conn.execute(
-        "SELECT * FROM tasks"
+        "SELECT * FROM tasks WHERE user_id = ?",
+        (session["user_id"],)
     ).fetchall()
 
     conn.close()
