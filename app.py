@@ -135,6 +135,44 @@ def home():
 
 @app.route("/add_task", methods=["POST"])
 def add_task():
+
+    if "user_id" not in session:
+        return jsonify({
+            "error": "Please login first"
+        }), 401
+
+    data = request.get_json()
+
+    task = data.get("task")
+    due_date = data.get("due_date")
+
+    if not task or not due_date:
+        return jsonify({
+            "error": "Task and due date are required"
+        }), 400
+
+    conn = get_db_connection()
+
+    conn.execute(
+        """
+        INSERT INTO tasks
+        (task, due_date, completed, user_id)
+        VALUES (?, ?, ?, ?)
+        """,
+        (
+            task,
+            due_date,
+            0,
+            session["user_id"]
+        )
+    )
+
+    conn.commit()
+    conn.close()
+
+    return jsonify({
+        "message": "Task added successfully"
+    }), 200
     data = request.get_json()
 
     task = data.get("task")
