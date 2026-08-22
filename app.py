@@ -1,8 +1,8 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, session
 import sqlite3
 
 app = Flask(__name__)
-
+app.secret_key = "student-task-manager-secret-key"
 
 def get_db_connection():
     conn = sqlite3.connect("tasks.db")
@@ -14,6 +14,15 @@ def create_table():
     conn = get_db_connection()
 
     conn.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT NOT NULL,
+            email TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL
+        )
+    """)
+
+    conn.execute("""
         CREATE TABLE IF NOT EXISTS tasks (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             task TEXT NOT NULL,
@@ -21,7 +30,6 @@ def create_table():
             due_date TEXT
         )
     """)
-
     # Existing database ki due_date column add cheyyadaniki
     columns = conn.execute("PRAGMA table_info(tasks)").fetchall()
 
