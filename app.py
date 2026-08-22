@@ -30,25 +30,25 @@ def create_table():
             due_date TEXT
         )
     """)
-    # Existing database ki due_date column add cheyyadaniki
+
     columns = conn.execute("PRAGMA table_info(tasks)").fetchall()
 
     column_names = [column["name"] for column in columns]
 
     if "due_date" not in column_names:
-        conn.execute("ALTER TABLE tasks ADD COLUMN due_date TEXT")
-columns = conn.execute("PRAGMA table_info(tasks)").fetchall()
-
-    column_names = [column["name"] for column in columns]
+        conn.execute(
+            "ALTER TABLE tasks ADD COLUMN due_date TEXT"
+        )
 
     if "user_id" not in column_names:
         conn.execute(
             "ALTER TABLE tasks ADD COLUMN user_id INTEGER"
         )
-    
+
     conn.commit()
     conn.close()
-    
+
+
 create_table()
 
 @app.route("/register", methods=["GET", "POST"])
