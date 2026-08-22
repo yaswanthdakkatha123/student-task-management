@@ -82,7 +82,44 @@ def register():
     return jsonify({
         "message": "Registration successful"
     }), 200
+    
+@app.route("/login", methods=["GET", "POST"])
+def login():
 
+    if request.method == "GET":
+        return render_template("login.html")
+
+    data = request.get_json()
+
+    email = data.get("email")
+    password = data.get("password")
+
+    if not email or not password:
+        return jsonify({
+            "error": "Email and password are required"
+        }), 400
+
+    conn = get_db_connection()
+
+    user = conn.execute(
+        "SELECT * FROM users WHERE email = ? AND password = ?",
+        (email, password)
+    ).fetchone()
+
+    conn.close()
+
+    if user:
+        session["user_id"] = user["id"]
+        session["username"] = user["username"]
+
+        return jsonify({
+            "message": "Login successful"
+        }), 200
+
+    return jsonify({
+        "error": "Invalid email or password"
+    }), 401
+    
 @app.route("/")
 def home():
     return render_template("index.html")
