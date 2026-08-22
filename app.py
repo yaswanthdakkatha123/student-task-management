@@ -218,18 +218,26 @@ def get_tasks():
 @app.route("/complete_task/<int:task_id>", methods=["PUT"])
 def complete_task(task_id):
 
+    if "user_id" not in session:
+        return jsonify({"error": "Please login first"}), 401
+
     conn = get_db_connection()
 
     conn.execute(
-        "UPDATE tasks SET completed = 1 WHERE id = ?",
-        (task_id,)
+        """
+        UPDATE tasks
+        SET completed = 1
+        WHERE id = ? AND user_id = ?
+        """,
+        (task_id, session["user_id"])
     )
 
     conn.commit()
     conn.close()
 
-    return jsonify({"message": "Task completed successfully"})
-
+    return jsonify({
+        "message": "Task completed successfully"
+    })
 
 # Delete task
 @app.route("/delete_task/<int:task_id>", methods=["DELETE"])
