@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Student Task Management</title>
-
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
 </head>
 
 <body>
@@ -401,7 +401,13 @@ async function loadTasks() {
 loadTasks();
 
 </script>
-
+<script>
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/static/service-worker.js")
+        .then(() => console.log("Service Worker registered"))
+        .catch(error => console.log("Service Worker error:", error));
+}
+</script>
 </body>
 
 </html>
