@@ -420,7 +420,93 @@ async function loadTasks() {
 
 loadTasks();
 
-</script>
+// Check task due times every 30 seconds
+setInterval(checkDueTasks, 30000);
+
+async function checkDueTasks() {
+
+    try {
+
+        const response = await fetch("/tasks");
+
+        if (!response.ok) {
+            return;
+        }
+
+        const tasks = await response.json();
+
+        const now = new Date();
+
+        tasks.forEach(function(task) {
+
+            if (task.completed === 1) {
+                return;
+            }
+
+            if (!task.due_date || !task.due_time) {
+                return;
+            }
+
+            const dueDateTime = new Date(
+                task.due_date + "T" + task.due_time
+            );
+
+            const difference =
+                Math.abs(now.getTime() - dueDateTime.getTime());
+
+            // Notify if due time is within 30 seconds
+            if (difference <= 30000) {
+
+                const notificationKey =
+                    "notified_task_" + task.id;
+
+                if (localStorage.getItem(notificationKey)) {
+                    return;
+                }
+
+                localStorage.setItem(
+                    notificationKey,
+                    "true"
+                );
+
+                if (
+                    "serviceWorker" in navigator &&
+                    Notification.permission === "granted"
+                ) {
+
+                    navigator.serviceWorker.ready.then(
+                        function(registration) {
+
+                            registration.showNotification(
+                                "⏰ Task Due!",
+                                {
+                                    body:
+                                        task.task +
+                                        " is due now.",
+                                    icon: "/static/icon.png",
+                                    badge: "/static/icon.png"
+                                }
+                            );
+
+                        }
+                    );
+
+                }
+
+            }
+
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Due time check failed:",
+            error
+        );
+
+    }
+
+}
 
 
 <!-- SERVICE WORKER -->
