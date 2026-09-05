@@ -16,10 +16,6 @@
 
 <body>
 
-    <button onclick="testNotification()">
-        🔔 Test Notification
-    </button>
-
     <div class="container">
 
         <div class="navbar">
@@ -486,84 +482,7 @@ if ("Notification" in window) {
 }
 
 </script>
-
-
-<!-- TEST NOTIFICATION -->
-
-<script>
-
-function testNotification() {
-
-    if (!("Notification" in window)) {
-
-        alert(
-            "This browser does not support notifications."
-        );
-
-        return;
-    }
-
-
-    if (Notification.permission !== "granted") {
-
-        alert(
-            "Please allow notifications first."
-        );
-
-        return;
-    }
-
-
-    if (!("serviceWorker" in navigator)) {
-
-        alert(
-            "Service Worker is not supported."
-        );
-
-        return;
-    }
-
-
-    navigator.serviceWorker.ready
-
-        .then(function(registration) {
-
-            return registration.showNotification(
-                "Student Task Manager 🔔",
-                {
-                    body:
-                        "Notification is working successfully!"
-                }
-            );
-
-        })
-
-        .then(function() {
-
-            console.log(
-                "Test notification sent successfully."
-            );
-
-        })
-
-        .catch(function(error) {
-
-            console.error(
-                "Notification error:",
-                error
-            );
-
-            alert(
-                "Notification error: " +
-                error.message
-            );
-
-        });
-
-}
-
-</script>
-
+        
 </body>
 
 </html>
