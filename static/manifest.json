@@ -1,10 +1,19 @@
 {
   "name": "Student Task Manager",
   "short_name": "Task Manager",
+  "description": "Manage student tasks, deadlines and reminders easily.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#2196f3",
-  "description": "Student Task Management App",
-  "icons": []
+  "orientation": "portrait",
+  "background_color": "#111827",
+  "theme_color": "#4f46e5",
+  "icons": [
+    {
+      "src": "/static/icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
 }
