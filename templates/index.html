@@ -408,6 +408,13 @@ if ("serviceWorker" in navigator) {
         .catch(error => console.log("Service Worker error:", error));
 }
 </script>
+    <script>
+if ("Notification" in window) {
+    Notification.requestPermission().then(function(permission) {
+        console.log("Notification permission:", permission);
+    });
+}
+</script>
 </body>
 
 </html>
