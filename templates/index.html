@@ -425,6 +425,21 @@ setTimeout(() => {
     });
 }, 3000);
 </script>
+    <script>
+function testNotification() {
+    if (Notification.permission !== "granted") {
+        alert("Please allow notifications first.");
+        return;
+    }
+
+    navigator.serviceWorker.ready.then(function(registration) {
+        registration.showNotification("Student Task Manager 🔔", {
+            body: "Notification is working successfully!",
+            icon: "/static/icon.png"
+        });
+    });
+}
+</script>
 </body>
 
 </html>
