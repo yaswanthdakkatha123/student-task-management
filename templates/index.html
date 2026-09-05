@@ -12,9 +12,101 @@
 
     <link rel="manifest"
           href="{{ url_for('static', filename='manifest.json') }}">
+    <style>
+
+#splashScreen {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: linear-gradient(
+        135deg,
+        #2563eb,
+        #7c3aed,
+        #ec4899
+    );
+
+    transition: opacity 0.5s ease;
+}
+
+.splash-content {
+    text-align: center;
+    color: white;
+}
+
+.splash-icon {
+    width: 150px;
+    height: 150px;
+
+    border-radius: 30px;
+
+    object-fit: cover;
+
+    box-shadow:
+        0 15px 40px rgba(0, 0, 0, 0.3);
+
+    margin-bottom: 20px;
+}
+
+.splash-content h1 {
+    font-size: 28px;
+    margin: 10px 0;
+}
+
+.splash-content p {
+    font-size: 16px;
+    opacity: 0.9;
+}
+
+.splash-loader {
+    width: 35px;
+    height: 35px;
+
+    margin: 25px auto 0;
+
+    border: 4px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+
+    border-radius: 50%;
+
+    animation: splashSpin 1s linear infinite;
+}
+
+@keyframes splashSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+</style>
 </head>
 
 <body>
+    <!-- CUSTOM SPLASH SCREEN -->
+
+<div id="splashScreen">
+
+    <div class="splash-content">
+
+        <img
+            src="/static/icon.png"
+            alt="Student Task Manager"
+            class="splash-icon"
+        >
+
+        <h1>Student Task Manager</h1>
+
+        <p>Manage your tasks easily</p>
+
+        <div class="splash-loader"></div>
+
+    </div>
+
+</div>
 
     <div class="container">
 
@@ -652,6 +744,26 @@
     }
 
     </script>
+    <script>
+
+window.addEventListener("load", function() {
+
+    setTimeout(function() {
+
+        const splash =
+            document.getElementById("splashScreen");
+
+        splash.style.opacity = "0";
+
+        setTimeout(function() {
+            splash.style.display = "none";
+        }, 500);
+
+    }, 1500);
+
+});
+
+</script>
 
 </body>
 
