@@ -10,3 +10,11 @@ self.addEventListener("activate", event => {
 self.addEventListener("fetch", event => {
     event.respondWith(fetch(event.request));
 });
+
+<script>
+if ("Notification" in window) {
+    Notification.requestPermission().then(function(permission) {
+        console.log("Notification permission:", permission);
+    });
+}
+</script>
