@@ -6,14 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Student Task Management</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <link rel="manifest"
+          href="{{ url_for('static', filename='manifest.json') }}">
 </head>
 
 <body>
+
     <button onclick="testNotification()">
-    🔔 Test Notification
-</button>
+        🔔 Test Notification
+    </button>
 
     <div class="container">
 
@@ -35,7 +40,6 @@
 
         <p>Manage your tasks easily</p>
 
-
         <div class="stats">
 
             <div class="stat-box">
@@ -54,7 +58,6 @@
             </div>
 
         </div>
-
 
         <div class="task-box">
 
@@ -78,7 +81,6 @@
 
         </div>
 
-
         <ul id="taskList"></ul>
 
     </div>
@@ -88,13 +90,23 @@
 
 async function addTask() {
 
-    const taskInput = document.getElementById("taskInput");
-    const dueDateInput = document.getElementById("dueDate");
-    const dueTimeInput = document.getElementById("dueTime");
+    const taskInput =
+        document.getElementById("taskInput");
 
-    const task = taskInput.value.trim();
-    const dueDate = dueDateInput.value;
-    const dueTime = dueTimeInput.value;
+    const dueDateInput =
+        document.getElementById("dueDate");
+
+    const dueTimeInput =
+        document.getElementById("dueTime");
+
+    const task =
+        taskInput.value.trim();
+
+    const dueDate =
+        dueDateInput.value;
+
+    const dueTime =
+        dueTimeInput.value;
 
 
     if (task === "") {
@@ -144,9 +156,13 @@ async function addTask() {
 
     } else {
 
-        const data = await response.json();
+        const data =
+            await response.json();
 
-        alert(data.error || "Failed to add task");
+        alert(
+            data.error ||
+            "Failed to add task"
+        );
 
     }
 
@@ -155,15 +171,18 @@ async function addTask() {
 
 async function loadTasks() {
 
-    const response = await fetch("/tasks");
+    const response =
+        await fetch("/tasks");
 
     if (!response.ok) {
         return;
     }
 
-    const tasks = await response.json();
+    const tasks =
+        await response.json();
 
-    const taskList = document.getElementById("taskList");
+    const taskList =
+        document.getElementById("taskList");
 
     taskList.innerHTML = "";
 
@@ -178,16 +197,19 @@ async function loadTasks() {
         document.getElementById("pendingTasks");
 
 
-    const completedCount = tasks.filter(
-        task => task.completed === 1
-    ).length;
+    const completedCount =
+        tasks.filter(
+            task => task.completed === 1
+        ).length;
 
 
     const pendingCount =
-        tasks.length - completedCount;
+        tasks.length -
+        completedCount;
 
 
-    totalTasks.textContent = tasks.length;
+    totalTasks.textContent =
+        tasks.length;
 
     completedTasks.textContent =
         completedCount;
@@ -243,7 +265,6 @@ async function loadTasks() {
 
         editButton.onclick =
             async function() {
-
 
             const newTask =
                 prompt(
@@ -404,45 +425,145 @@ async function loadTasks() {
 loadTasks();
 
 </script>
+
+
+<!-- SERVICE WORKER -->
+
 <script>
+
 if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("/static/service-worker.js")
-        .then(() => console.log("Service Worker registered"))
-        .catch(error => console.log("Service Worker error:", error));
+
+    window.addEventListener("load", function() {
+
+        navigator.serviceWorker
+            .register("/static/service-worker.js")
+
+            .then(function(registration) {
+
+                console.log(
+                    "Service Worker registered:",
+                    registration.scope
+                );
+
+            })
+
+            .catch(function(error) {
+
+                console.error(
+                    "Service Worker registration failed:",
+                    error
+                );
+
+            });
+
+    });
+
 }
+
 </script>
-    <script>
+
+
+<!-- NOTIFICATION PERMISSION -->
+
+<script>
+
 if ("Notification" in window) {
-    Notification.requestPermission().then(function(permission) {
-        console.log("Notification permission:", permission);
-    });
+
+    if (Notification.permission === "default") {
+
+        Notification.requestPermission()
+            .then(function(permission) {
+
+                console.log(
+                    "Notification permission:",
+                    permission
+                );
+
+            });
+
+    }
+
 }
+
 </script>
-    <script>
-setTimeout(() => {
-    navigator.serviceWorker.ready.then(registration => {
-        registration.showNotification("Student Task Manager 🔔", {
-            body: "Notifications are working successfully!",
-            icon: "/static/icon.png"
-        });
-    });
-}, 3000);
-</script>
-    <script>
+
+
+<!-- TEST NOTIFICATION -->
+
+<script>
+
 function testNotification() {
-    if (Notification.permission !== "granted") {
-        alert("Please allow notifications first.");
+
+    if (!("Notification" in window)) {
+
+        alert(
+            "This browser does not support notifications."
+        );
+
         return;
     }
 
-    navigator.serviceWorker.ready.then(function(registration) {
-        registration.showNotification("Student Task Manager 🔔", {
-            body: "Notification is working successfully!",
-            icon: "/static/icon.png"
+
+    if (Notification.permission !== "granted") {
+
+        alert(
+            "Please allow notifications first."
+        );
+
+        return;
+    }
+
+
+    if (!("serviceWorker" in navigator)) {
+
+        alert(
+            "Service Worker is not supported."
+        );
+
+        return;
+    }
+
+
+    navigator.serviceWorker.ready
+
+        .then(function(registration) {
+
+            return registration.showNotification(
+                "Student Task Manager 🔔",
+                {
+                    body:
+                        "Notification is working successfully!"
+                }
+            );
+
+        })
+
+        .then(function() {
+
+            console.log(
+                "Test notification sent successfully."
+            );
+
+        })
+
+        .catch(function(error) {
+
+            console.error(
+                "Notification error:",
+                error
+            );
+
+            alert(
+                "Notification error: " +
+                error.message
+            );
+
         });
-    });
+
 }
+
 </script>
+
 </body>
 
 </html>
