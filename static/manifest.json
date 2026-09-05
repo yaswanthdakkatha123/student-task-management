@@ -1,0 +1,10 @@
+{
+  "name": "Student Task Manager",
+  "short_name": "Task Manager",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2196f3",
+  "description": "Student Task Management App",
+  "icons": []
+}
