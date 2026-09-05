@@ -13,38 +13,45 @@
 <body>
 
     <div class="container">
-        <div class="navbar">
-    <div class="nav-title">📚 Student Task Manager</div>
 
-    <div class="nav-buttons">
-        <a href="/login" class="nav-btn">🔐 Login</a>
-        <a href="/register" class="nav-btn">📝 Register</a>
-        <a href="/logout" class="nav-btn logout-btn">🚪 Logout</a>
-    </div>
-</div>
+        <div class="navbar">
+
+            <div class="nav-title">
+                📚 Student Task Manager
+            </div>
+
+            <div class="nav-buttons">
+                <a href="/login" class="nav-btn">🔐 Login</a>
+                <a href="/register" class="nav-btn">📝 Register</a>
+                <a href="/logout" class="nav-btn logout-btn">🚪 Logout</a>
+            </div>
+
+        </div>
 
         <h1>Student Task Management</h1>
 
         <p>Manage your tasks easily</p>
 
-    <div class="stats">
 
-    <div class="stat-box">
-        <h2 id="totalTasks">0</h2>
-        <p>Total Tasks</p>
-    </div>
+        <div class="stats">
 
-    <div class="stat-box">
-        <h2 id="completedTasks">0</h2>
-        <p>Completed</p>
-    </div>
+            <div class="stat-box">
+                <h2 id="totalTasks">0</h2>
+                <p>Total Tasks</p>
+            </div>
 
-    <div class="stat-box">
-        <h2 id="pendingTasks">0</h2>
-        <p>Pending</p>
-    </div>
+            <div class="stat-box">
+                <h2 id="completedTasks">0</h2>
+                <p>Completed</p>
+            </div>
 
-</div>
+            <div class="stat-box">
+                <h2 id="pendingTasks">0</h2>
+                <p>Pending</p>
+            </div>
+
+        </div>
+
 
         <div class="task-box">
 
@@ -53,38 +60,57 @@
                 id="taskInput"
                 placeholder="Enter your task"
             >
+
             <input
-            type="date"
-            id="dueDate"
+                type="date"
+                id="dueDate"
             >
+
+            <input
+                type="time"
+                id="dueTime"
+            >
+
             <button onclick="addTask()">Add Task</button>
 
         </div>
+
 
         <ul id="taskList"></ul>
 
     </div>
 
 
- <script>
+<script>
 
-    async function addTask() {
+async function addTask() {
 
     const taskInput = document.getElementById("taskInput");
     const dueDateInput = document.getElementById("dueDate");
+    const dueTimeInput = document.getElementById("dueTime");
 
     const task = taskInput.value.trim();
     const dueDate = dueDateInput.value;
+    const dueTime = dueTimeInput.value;
+
 
     if (task === "") {
         alert("Please enter a task");
         return;
     }
 
+
     if (dueDate === "") {
         alert("Please select a due date");
         return;
     }
+
+
+    if (dueTime === "") {
+        alert("Please select a due time");
+        return;
+    }
+
 
     const response = await fetch("/add_task", {
 
@@ -96,10 +122,12 @@
 
         body: JSON.stringify({
             task: task,
-            due_date: dueDate
+            due_date: dueDate,
+            due_time: dueTime
         })
 
     });
+
 
     if (response.ok) {
 
@@ -107,6 +135,7 @@
 
         taskInput.value = "";
         dueDateInput.value = "";
+        dueTimeInput.value = "";
 
         loadTasks();
 
@@ -117,162 +146,261 @@
         alert(data.error || "Failed to add task");
 
     }
+
 }
 
 
-        async function loadTasks() {
+async function loadTasks() {
 
-            const response = await fetch("/tasks");
+    const response = await fetch("/tasks");
 
-            const tasks = await response.json();
+    if (!response.ok) {
+        return;
+    }
 
-            const taskList = document.getElementById("taskList");
+    const tasks = await response.json();
 
-            taskList.innerHTML = "";
-        
-            const totalTasks = document.getElementById("totalTasks");
-const completedTasks = document.getElementById("completedTasks");
-const pendingTasks = document.getElementById("pendingTasks");
+    const taskList = document.getElementById("taskList");
 
-const completedCount = tasks.filter(
-    task => task.completed === 1
-).length;
-
-const pendingCount = tasks.length - completedCount;
-
-totalTasks.textContent = tasks.length;
-completedTasks.textContent = completedCount;
-pendingTasks.textContent = pendingCount;
-
-            tasks.forEach(function(task) {
-
-                const li = document.createElement("li");
-
-                const taskText = document.createElement("span");
-
-                taskText.textContent = task.task;
-
-                const dueDateText = document.createElement("span");
-
-                dueDateText.textContent = ` 📅 Due: ${task.due_date}`;
-
-                dueDateText.style.marginLeft = "10px";
+    taskList.innerHTML = "";
 
 
-                if (task.completed === 1) {
+    const totalTasks =
+        document.getElementById("totalTasks");
 
-                    taskText.style.textDecoration = "line-through";
+    const completedTasks =
+        document.getElementById("completedTasks");
 
-                }
-
-
-                li.appendChild(taskText);
-                li.appendChild(dueDateText);
-
-
-                // EDIT BUTTON
-                const editButton = document.createElement("button");
-
-                editButton.textContent = "Edit";
-
-                editButton.onclick = async function() {
-
-                    const newTask = prompt(
-                        "Enter the updated task:",
-                        task.task
-                    );
-
-                    if (
-                        newTask === null ||
-                        newTask.trim() === ""
-                    ) {
-                        return;
-                    }
+    const pendingTasks =
+        document.getElementById("pendingTasks");
 
 
-                    const response = await fetch(
-                        `/edit_task/${task.id}`,
-                        {
-                            method: "PUT",
-
-                            headers: {
-                                "Content-Type": "application/json"
-                            },
-
-                            body: JSON.stringify({
-                                task: newTask.trim()
-                            })
-                        }
-                    );
+    const completedCount = tasks.filter(
+        task => task.completed === 1
+    ).length;
 
 
-                    if (response.ok) {
-
-                        alert("Task updated successfully!");
-
-                        loadTasks();
-
-                    }
-
-                };
+    const pendingCount =
+        tasks.length - completedCount;
 
 
-                // COMPLETE BUTTON
-                const completeButton =
-                    document.createElement("button");
+    totalTasks.textContent = tasks.length;
 
-                completeButton.textContent = "Complete";
+    completedTasks.textContent =
+        completedCount;
 
-                completeButton.onclick = async function() {
-
-                    await fetch(
-                        `/complete_task/${task.id}`,
-                        {
-                            method: "PUT"
-                        }
-                    );
-
-                    loadTasks();
-
-                };
+    pendingTasks.textContent =
+        pendingCount;
 
 
-                // DELETE BUTTON
-                const deleteButton =
-                    document.createElement("button");
+    tasks.forEach(function(task) {
 
-                deleteButton.textContent = "Delete";
-
-                deleteButton.onclick = async function() {
-
-                    await fetch(
-                        `/delete_task/${task.id}`,
-                        {
-                            method: "DELETE"
-                        }
-                    );
-
-                    loadTasks();
-
-                };
+        const li =
+            document.createElement("li");
 
 
-                li.appendChild(editButton);
+        const taskText =
+            document.createElement("span");
 
-                li.appendChild(completeButton);
+        taskText.textContent =
+            task.task;
 
-                li.appendChild(deleteButton);
 
-                taskList.appendChild(li);
+        const dueDateText =
+            document.createElement("span");
 
-            });
+        dueDateText.textContent =
+            ` 📅 Due: ${task.due_date} ⏰ ${task.due_time || ""}`;
+
+        dueDateText.style.marginLeft =
+            "10px";
+
+
+        if (task.completed === 1) {
+
+            taskText.style.textDecoration =
+                "line-through";
 
         }
 
 
-        loadTasks();
+        li.appendChild(taskText);
 
-    </script>
+        li.appendChild(dueDateText);
+
+
+        // EDIT BUTTON
+
+        const editButton =
+            document.createElement("button");
+
+        editButton.textContent =
+            "Edit";
+
+
+        editButton.onclick =
+            async function() {
+
+
+            const newTask =
+                prompt(
+                    "Enter the updated task:",
+                    task.task
+                );
+
+
+            if (
+                newTask === null ||
+                newTask.trim() === ""
+            ) {
+                return;
+            }
+
+
+            const newDueDate =
+                prompt(
+                    "Enter the updated due date (YYYY-MM-DD):",
+                    task.due_date || ""
+                );
+
+
+            if (
+                newDueDate === null ||
+                newDueDate.trim() === ""
+            ) {
+                return;
+            }
+
+
+            const newDueTime =
+                prompt(
+                    "Enter the updated due time (HH:MM):",
+                    task.due_time || ""
+                );
+
+
+            if (
+                newDueTime === null ||
+                newDueTime.trim() === ""
+            ) {
+                return;
+            }
+
+
+            const response =
+                await fetch(
+                    `/edit_task/${task.id}`,
+                    {
+                        method: "PUT",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body: JSON.stringify({
+
+                            task:
+                                newTask.trim(),
+
+                            due_date:
+                                newDueDate.trim(),
+
+                            due_time:
+                                newDueTime.trim()
+
+                        })
+                    }
+                );
+
+
+            if (response.ok) {
+
+                alert(
+                    "Task updated successfully!"
+                );
+
+                loadTasks();
+
+            } else {
+
+                const data =
+                    await response.json();
+
+                alert(
+                    data.error ||
+                    "Failed to update task"
+                );
+
+            }
+
+        };
+
+
+        // COMPLETE BUTTON
+
+        const completeButton =
+            document.createElement("button");
+
+        completeButton.textContent =
+            "Complete";
+
+
+        completeButton.onclick =
+            async function() {
+
+            await fetch(
+                `/complete_task/${task.id}`,
+                {
+                    method: "PUT"
+                }
+            );
+
+            loadTasks();
+
+        };
+
+
+        // DELETE BUTTON
+
+        const deleteButton =
+            document.createElement("button");
+
+        deleteButton.textContent =
+            "Delete";
+
+
+        deleteButton.onclick =
+            async function() {
+
+            await fetch(
+                `/delete_task/${task.id}`,
+                {
+                    method: "DELETE"
+                }
+            );
+
+            loadTasks();
+
+        };
+
+
+        li.appendChild(editButton);
+
+        li.appendChild(completeButton);
+
+        li.appendChild(deleteButton);
+
+        taskList.appendChild(li);
+
+    });
+
+}
+
+
+loadTasks();
+
+</script>
 
 </body>
 
