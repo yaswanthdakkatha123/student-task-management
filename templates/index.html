@@ -82,263 +82,75 @@
     </div>
 
 
-<script>
+    <!-- MAIN JAVASCRIPT -->
 
-async function addTask() {
+    <script>
 
-    const taskInput =
-        document.getElementById("taskInput");
+    async function addTask() {
 
-    const dueDateInput =
-        document.getElementById("dueDate");
+        const taskInput =
+            document.getElementById("taskInput");
 
-    const dueTimeInput =
-        document.getElementById("dueTime");
+        const dueDateInput =
+            document.getElementById("dueDate");
 
-    const task =
-        taskInput.value.trim();
+        const dueTimeInput =
+            document.getElementById("dueTime");
 
-    const dueDate =
-        dueDateInput.value;
+        const task =
+            taskInput.value.trim();
 
-    const dueTime =
-        dueTimeInput.value;
+        const dueDate =
+            dueDateInput.value;
 
-
-    if (task === "") {
-        alert("Please enter a task");
-        return;
-    }
+        const dueTime =
+            dueTimeInput.value;
 
 
-    if (dueDate === "") {
-        alert("Please select a due date");
-        return;
-    }
-
-
-    if (dueTime === "") {
-        alert("Please select a due time");
-        return;
-    }
-
-
-    const response = await fetch("/add_task", {
-
-        method: "POST",
-
-        headers: {
-            "Content-Type": "application/json"
-        },
-
-        body: JSON.stringify({
-            task: task,
-            due_date: dueDate,
-            due_time: dueTime
-        })
-
-    });
-
-
-    if (response.ok) {
-
-        alert("Task added successfully!");
-
-        taskInput.value = "";
-        dueDateInput.value = "";
-        dueTimeInput.value = "";
-
-        loadTasks();
-
-    } else {
-
-        const data =
-            await response.json();
-
-        alert(
-            data.error ||
-            "Failed to add task"
-        );
-
-    }
-
-}
-
-
-async function loadTasks() {
-
-    const response =
-        await fetch("/tasks");
-
-    if (!response.ok) {
-        return;
-    }
-
-    const tasks =
-        await response.json();
-
-    const taskList =
-        document.getElementById("taskList");
-
-    taskList.innerHTML = "";
-
-
-    const totalTasks =
-        document.getElementById("totalTasks");
-
-    const completedTasks =
-        document.getElementById("completedTasks");
-
-    const pendingTasks =
-        document.getElementById("pendingTasks");
-
-
-    const completedCount =
-        tasks.filter(
-            task => task.completed === 1
-        ).length;
-
-
-    const pendingCount =
-        tasks.length -
-        completedCount;
-
-
-    totalTasks.textContent =
-        tasks.length;
-
-    completedTasks.textContent =
-        completedCount;
-
-    pendingTasks.textContent =
-        pendingCount;
-
-
-    tasks.forEach(function(task) {
-
-        const li =
-            document.createElement("li");
-
-
-        const taskText =
-            document.createElement("span");
-
-        taskText.textContent =
-            task.task;
-
-
-        const dueDateText =
-            document.createElement("span");
-
-        dueDateText.textContent =
-            ` 📅 Due: ${task.due_date} ⏰ ${task.due_time || ""}`;
-
-        dueDateText.style.marginLeft =
-            "10px";
-
-
-        if (task.completed === 1) {
-
-            taskText.style.textDecoration =
-                "line-through";
-
+        if (task === "") {
+            alert("Please enter a task");
+            return;
         }
 
 
-        li.appendChild(taskText);
-
-        li.appendChild(dueDateText);
-
-
-        // EDIT BUTTON
-
-        const editButton =
-            document.createElement("button");
-
-        editButton.textContent =
-            "Edit";
+        if (dueDate === "") {
+            alert("Please select a due date");
+            return;
+        }
 
 
-        editButton.onclick =
-            async function() {
-
-            const newTask =
-                prompt(
-                    "Enter the updated task:",
-                    task.task
-                );
+        if (dueTime === "") {
+            alert("Please select a due time");
+            return;
+        }
 
 
-            if (
-                newTask === null ||
-                newTask.trim() === ""
-            ) {
-                return;
-            }
+        try {
 
+            const response = await fetch("/add_task", {
 
-            const newDueDate =
-                prompt(
-                    "Enter the updated due date (YYYY-MM-DD):",
-                    task.due_date || ""
-                );
+                method: "POST",
 
+                headers: {
+                    "Content-Type": "application/json"
+                },
 
-            if (
-                newDueDate === null ||
-                newDueDate.trim() === ""
-            ) {
-                return;
-            }
+                body: JSON.stringify({
+                    task: task,
+                    due_date: dueDate,
+                    due_time: dueTime
+                })
 
-
-            const newDueTime =
-                prompt(
-                    "Enter the updated due time (HH:MM):",
-                    task.due_time || ""
-                );
-
-
-            if (
-                newDueTime === null ||
-                newDueTime.trim() === ""
-            ) {
-                return;
-            }
-
-
-            const response =
-                await fetch(
-                    `/edit_task/${task.id}`,
-                    {
-                        method: "PUT",
-
-                        headers: {
-                            "Content-Type":
-                                "application/json"
-                        },
-
-                        body: JSON.stringify({
-
-                            task:
-                                newTask.trim(),
-
-                            due_date:
-                                newDueDate.trim(),
-
-                            due_time:
-                                newDueTime.trim()
-
-                        })
-                    }
-                );
+            });
 
 
             if (response.ok) {
 
-                alert(
-                    "Task updated successfully!"
-                );
+                alert("Task added successfully!");
+
+                taskInput.value = "";
+                dueDateInput.value = "";
+                dueTimeInput.value = "";
 
                 loadTasks();
 
@@ -349,226 +161,498 @@ async function loadTasks() {
 
                 alert(
                     data.error ||
-                    "Failed to update task"
+                    "Failed to add task"
                 );
 
             }
 
-        };
+        } catch (error) {
 
-
-        // COMPLETE BUTTON
-
-        const completeButton =
-            document.createElement("button");
-
-        completeButton.textContent =
-            "Complete";
-
-
-        completeButton.onclick =
-            async function() {
-
-            await fetch(
-                `/complete_task/${task.id}`,
-                {
-                    method: "PUT"
-                }
+            console.error(
+                "Add task error:",
+                error
             );
 
-            loadTasks();
+            alert("Something went wrong while adding the task.");
 
-        };
-
-
-        // DELETE BUTTON
-
-        const deleteButton =
-            document.createElement("button");
-
-        deleteButton.textContent =
-            "Delete";
-
-
-        deleteButton.onclick =
-            async function() {
-
-            await fetch(
-                `/delete_task/${task.id}`,
-                {
-                    method: "DELETE"
-                }
-            );
-
-            loadTasks();
-
-        };
-
-
-        li.appendChild(editButton);
-
-        li.appendChild(completeButton);
-
-        li.appendChild(deleteButton);
-
-        taskList.appendChild(li);
-
-    });
-
-}
-
-
-loadTasks();
-
-// Check task due times every 30 seconds
-setInterval(checkDueTasks, 30000);
-
-async function checkDueTasks() {
-
-    try {
-
-        const response = await fetch("/tasks");
-
-        if (!response.ok) {
-            return;
         }
 
-        const tasks = await response.json();
+    }
 
-        const now = new Date();
 
-        tasks.forEach(function(task) {
+    async function loadTasks() {
 
-            if (task.completed === 1) {
+        try {
+
+            const response =
+                await fetch("/tasks");
+
+            if (!response.ok) {
                 return;
             }
 
-            if (!task.due_date || !task.due_time) {
-                return;
-            }
+            const tasks =
+                await response.json();
 
-            const dueDateTime = new Date(
-                task.due_date + "T" + task.due_time
+            const taskList =
+                document.getElementById("taskList");
+
+            taskList.innerHTML = "";
+
+
+            const totalTasks =
+                document.getElementById("totalTasks");
+
+            const completedTasks =
+                document.getElementById("completedTasks");
+
+            const pendingTasks =
+                document.getElementById("pendingTasks");
+
+
+            const completedCount =
+                tasks.filter(
+                    task => task.completed === 1
+                ).length;
+
+
+            const pendingCount =
+                tasks.length -
+                completedCount;
+
+
+            totalTasks.textContent =
+                tasks.length;
+
+            completedTasks.textContent =
+                completedCount;
+
+            pendingTasks.textContent =
+                pendingCount;
+
+
+            tasks.forEach(function(task) {
+
+                const li =
+                    document.createElement("li");
+
+
+                const taskText =
+                    document.createElement("span");
+
+                taskText.textContent =
+                    task.task;
+
+
+                const dueDateText =
+                    document.createElement("span");
+
+                dueDateText.textContent =
+                    ` 📅 Due: ${task.due_date} ⏰ ${task.due_time || ""}`;
+
+                dueDateText.style.marginLeft =
+                    "10px";
+
+
+                if (task.completed === 1) {
+
+                    taskText.style.textDecoration =
+                        "line-through";
+
+                }
+
+
+                li.appendChild(taskText);
+
+                li.appendChild(dueDateText);
+
+
+                // EDIT BUTTON
+
+                const editButton =
+                    document.createElement("button");
+
+                editButton.textContent =
+                    "Edit";
+
+
+                editButton.onclick =
+                    async function() {
+
+                    const newTask =
+                        prompt(
+                            "Enter the updated task:",
+                            task.task
+                        );
+
+
+                    if (
+                        newTask === null ||
+                        newTask.trim() === ""
+                    ) {
+                        return;
+                    }
+
+
+                    const newDueDate =
+                        prompt(
+                            "Enter the updated due date (YYYY-MM-DD):",
+                            task.due_date || ""
+                        );
+
+
+                    if (
+                        newDueDate === null ||
+                        newDueDate.trim() === ""
+                    ) {
+                        return;
+                    }
+
+
+                    const newDueTime =
+                        prompt(
+                            "Enter the updated due time (HH:MM):",
+                            task.due_time || ""
+                        );
+
+
+                    if (
+                        newDueTime === null ||
+                        newDueTime.trim() === ""
+                    ) {
+                        return;
+                    }
+
+
+                    const response =
+                        await fetch(
+                            `/edit_task/${task.id}`,
+                            {
+                                method: "PUT",
+
+                                headers: {
+                                    "Content-Type":
+                                        "application/json"
+                                },
+
+                                body: JSON.stringify({
+
+                                    task:
+                                        newTask.trim(),
+
+                                    due_date:
+                                        newDueDate.trim(),
+
+                                    due_time:
+                                        newDueTime.trim()
+
+                                })
+                            }
+                        );
+
+
+                    if (response.ok) {
+
+                        alert(
+                            "Task updated successfully!"
+                        );
+
+                        loadTasks();
+
+                    } else {
+
+                        const data =
+                            await response.json();
+
+                        alert(
+                            data.error ||
+                            "Failed to update task"
+                        );
+
+                    }
+
+                };
+
+
+                // COMPLETE BUTTON
+
+                const completeButton =
+                    document.createElement("button");
+
+                completeButton.textContent =
+                    "Complete";
+
+
+                completeButton.onclick =
+                    async function() {
+
+                    const response =
+                        await fetch(
+                            `/complete_task/${task.id}`,
+                            {
+                                method: "PUT"
+                            }
+                        );
+
+                    if (response.ok) {
+                        loadTasks();
+                    }
+
+                };
+
+
+                // DELETE BUTTON
+
+                const deleteButton =
+                    document.createElement("button");
+
+                deleteButton.textContent =
+                    "Delete";
+
+
+                deleteButton.onclick =
+                    async function() {
+
+                    const response =
+                        await fetch(
+                            `/delete_task/${task.id}`,
+                            {
+                                method: "DELETE"
+                            }
+                        );
+
+                    if (response.ok) {
+                        loadTasks();
+                    }
+
+                };
+
+
+                li.appendChild(editButton);
+
+                li.appendChild(completeButton);
+
+                li.appendChild(deleteButton);
+
+                taskList.appendChild(li);
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                "Load tasks error:",
+                error
             );
 
-            const difference =
-                Math.abs(now.getTime() - dueDateTime.getTime());
+        }
 
-            // Notify if due time is within 30 seconds
-            if (difference <= 30000) {
+    }
 
-                const notificationKey =
-                    "notified_task_" + task.id;
 
-                if (localStorage.getItem(notificationKey)) {
+    // ==============================
+    // DUE TIME NOTIFICATION
+    // ==============================
+
+    async function checkDueTasks() {
+
+        try {
+
+            const response =
+                await fetch("/tasks");
+
+            if (!response.ok) {
+                return;
+            }
+
+            const tasks =
+                await response.json();
+
+            const now =
+                new Date();
+
+
+            tasks.forEach(function(task) {
+
+                if (task.completed === 1) {
                     return;
                 }
 
-                localStorage.setItem(
-                    notificationKey,
-                    "true"
-                );
 
-                if (
-                    "serviceWorker" in navigator &&
-                    Notification.permission === "granted"
-                ) {
+                if (!task.due_date || !task.due_time) {
+                    return;
+                }
 
-                    navigator.serviceWorker.ready.then(
+
+                const dueDateTime =
+                    new Date(
+                        task.due_date +
+                        "T" +
+                        task.due_time
+                    );
+
+
+                const difference =
+                    Math.abs(
+                        now.getTime() -
+                        dueDateTime.getTime()
+                    );
+
+
+                // Due time within 30 seconds
+
+                if (difference <= 30000) {
+
+                    const notificationKey =
+                        "notified_task_" +
+                        task.id;
+
+
+                    if (
+                        localStorage.getItem(
+                            notificationKey
+                        )
+                    ) {
+                        return;
+                    }
+
+
+                    localStorage.setItem(
+                        notificationKey,
+                        "true"
+                    );
+
+
+                    if (
+                        "serviceWorker" in navigator &&
+                        Notification.permission === "granted"
+                    ) {
+
+                        navigator.serviceWorker.ready.then(
+                            function(registration) {
+
+                                registration.showNotification(
+                                    "⏰ Task Due!",
+                                    {
+                                        body:
+                                            task.task +
+                                            " is due now.",
+
+                                        icon:
+                                            "/static/icon.png",
+
+                                        badge:
+                                            "/static/icon.png"
+                                    }
+                                );
+
+                            }
+                        );
+
+                    }
+
+                }
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                "Due time check failed:",
+                error
+            );
+
+        }
+
+    }
+
+
+    // Load tasks when page opens
+
+    loadTasks();
+
+
+    // Check due tasks every 30 seconds
+
+    setInterval(
+        checkDueTasks,
+        30000
+    );
+
+    </script>
+
+
+    <!-- SERVICE WORKER -->
+
+    <script>
+
+    if ("serviceWorker" in navigator) {
+
+        window.addEventListener(
+            "load",
+            function() {
+
+                navigator.serviceWorker
+                    .register("/service-worker.js")
+
+                    .then(
                         function(registration) {
 
-                            registration.showNotification(
-                                "⏰ Task Due!",
-                                {
-                                    body:
-                                        task.task +
-                                        " is due now.",
-                                    icon: "/static/icon.png",
-                                    badge: "/static/icon.png"
-                                }
+                            console.log(
+                                "Service Worker registered:",
+                                registration.scope
+                            );
+
+                        }
+                    )
+
+                    .catch(
+                        function(error) {
+
+                            console.error(
+                                "Service Worker registration failed:",
+                                error
                             );
 
                         }
                     );
 
-                }
-
             }
-
-        });
-
-    } catch (error) {
-
-        console.error(
-            "Due time check failed:",
-            error
         );
 
     }
 
-}
+    </script>
 
 
-<!-- SERVICE WORKER -->
+    <!-- NOTIFICATION PERMISSION -->
 
-<script>
+    <script>
 
-if ("serviceWorker" in navigator) {
+    if ("Notification" in window) {
 
-    window.addEventListener("load", function() {
+        if (
+            Notification.permission === "default"
+        ) {
 
-        navigator.serviceWorker
-            .register("/service-worker.js")
+            Notification.requestPermission()
+                .then(
+                    function(permission) {
 
-            .then(function(registration) {
+                        console.log(
+                            "Notification permission:",
+                            permission
+                        );
 
-                console.log(
-                    "Service Worker registered:",
-                    registration.scope
+                    }
                 );
 
-            })
-
-            .catch(function(error) {
-
-                console.error(
-                    "Service Worker registration failed:",
-                    error
-                );
-
-            });
-
-    });
-
-}
-
-</script>
-
-
-<!-- NOTIFICATION PERMISSION -->
-
-<script>
-
-if ("Notification" in window) {
-
-    if (Notification.permission === "default") {
-
-        Notification.requestPermission()
-            .then(function(permission) {
-
-                console.log(
-                    "Notification permission:",
-                    permission
-                );
-
-            });
+        }
 
     }
 
-}
+    </script>
 
-</script>
-        
 </body>
 
 </html>
