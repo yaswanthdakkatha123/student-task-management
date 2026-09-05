@@ -44,3 +44,15 @@ self.addEventListener("notificationclick", event => {
         })
     );
 });
+self.addEventListener("message", event => {
+    if (event.data && event.data.type === "SHOW_NOTIFICATION") {
+        self.registration.showNotification(
+            event.data.title,
+            {
+                body: event.data.body,
+                icon: "/static/icon.png",
+                badge: "/static/icon.png"
+            }
+        );
+    }
+});
