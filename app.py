@@ -38,8 +38,15 @@ def create_table():
             task TEXT NOT NULL,
             completed INTEGER DEFAULT 0,
             due_date TEXT,
+            due_time TEXT,
             user_id INTEGER
         )
+    """)
+
+    # Add due_time to existing tasks table if it doesn't exist
+    cur.execute("""
+        ALTER TABLE tasks
+        ADD COLUMN IF NOT EXISTS due_time TEXT
     """)
 
     conn.commit()
@@ -166,10 +173,11 @@ def add_task():
 
     task = data.get("task")
     due_date = data.get("due_date")
+    due_time = data.get("due_time")
 
-    if not task or not due_date:
+    if not task or not due_date or not due_time:
         return jsonify({
-            "error": "Task and due date are required"
+            "error": "Task, due date and due time are required"
         }), 400
 
     conn = get_db_connection()
@@ -178,10 +186,10 @@ def add_task():
     cur.execute(
         """
         INSERT INTO tasks
-        (task, due_date, completed, user_id)
-        VALUES (%s, %s, %s, %s)
+        (task, due_date, due_time, completed, user_id)
+        VALUES (%s, %s, %s, %s, %s)
         """,
-        (task, due_date, 0, session["user_id"])
+        (task, due_date, due_time, 0, session["user_id"])
     )
 
     conn.commit()
@@ -287,11 +295,14 @@ def edit_task(task_id):
         }), 401
 
     data = request.get_json()
-    new_task = data.get("task")
 
-    if not new_task:
+    new_task = data.get("task")
+    new_due_date = data.get("due_date")
+    new_due_time = data.get("due_time")
+
+    if not new_task or not new_due_date or not new_due_time:
         return jsonify({
-            "error": "Task is required"
+            "error": "Task, due date and due time are required"
         }), 400
 
     conn = get_db_connection()
@@ -300,10 +311,18 @@ def edit_task(task_id):
     cur.execute(
         """
         UPDATE tasks
-        SET task = %s
+        SET task = %s,
+            due_date = %s,
+            due_time = %s
         WHERE id = %s AND user_id = %s
         """,
-        (new_task, task_id, session["user_id"])
+        (
+            new_task,
+            new_due_date,
+            new_due_time,
+            task_id,
+            session["user_id"]
+        )
     )
 
     conn.commit()
@@ -317,6 +336,7 @@ def edit_task(task_id):
 
 if __name__ == "__main__":
     create_table()
+
     app.run(
         host="0.0.0.0",
         port=int(os.environ.get("PORT", 5000))
