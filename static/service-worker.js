@@ -5,18 +5,7 @@ self.addEventListener("install", event => {
 
 self.addEventListener("activate", event => {
     console.log("Service Worker activated");
-});
-
-self.addEventListener("fetch", event => {
-    event.respondWith(fetch(event.request));
-});
-self.addEventListener("install", event => {
-    console.log("Service Worker installed");
-    self.skipWaiting();
-});
-
-self.addEventListener("activate", event => {
-    console.log("Service Worker activated");
+    event.waitUntil(self.clients.claim());
 });
 
 self.addEventListener("fetch", event => {
@@ -32,6 +21,7 @@ self.addEventListener("notificationclick", event => {
             type: "window",
             includeUncontrolled: true
         }).then(clientList => {
+
             for (const client of clientList) {
                 if ("focus" in client) {
                     return client.focus();
@@ -44,8 +34,12 @@ self.addEventListener("notificationclick", event => {
         })
     );
 });
+
+// Show notification when requested by webpage
 self.addEventListener("message", event => {
+
     if (event.data && event.data.type === "SHOW_NOTIFICATION") {
+
         self.registration.showNotification(
             event.data.title,
             {
@@ -54,5 +48,6 @@ self.addEventListener("message", event => {
                 badge: "/static/icon.png"
             }
         );
+
     }
 });
