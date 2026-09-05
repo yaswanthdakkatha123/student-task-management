@@ -415,6 +415,16 @@ if ("Notification" in window) {
     });
 }
 </script>
+    <script>
+setTimeout(() => {
+    navigator.serviceWorker.ready.then(registration => {
+        registration.showNotification("Student Task Manager 🔔", {
+            body: "Notifications are working successfully!",
+            icon: "/static/icon.png"
+        });
+    });
+}, 3000);
+</script>
 </body>
 
 </html>
